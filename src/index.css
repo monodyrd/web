@@ -11,3 +11,25 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.dates{
+  width: 100vw;
+  display: flex;
+  margin: 20px;
+  justify-content: space-around;
+  box-sizing: border-box;
+  padding: 1vw;
+}
+.date{
+  cursor: pointer;
+  border: 2px solid rgb(66, 125, 250);
+  border-radius: 5px;
+  padding: 1vw 2vw;
+}
+.date:hover{
+  background-color: rgb(66, 125, 250);
+  color: white;
+}
+.dateActive{
+  background-color: rgb(66, 125, 250);
+  color: white;
+}
