@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { List, Button } from "antd";
+import { Card, Button } from "antd";
 
 function getDates(daysToAdd) {
   const result = [];
@@ -91,54 +91,74 @@ function BadmintonBooking(props) {
           );
         })}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ width: "45%" }}>
-          <List
-            header={<div>morning</div>}
-            // footer={<div>Footer</div>}
-            bordered
-            dataSource={morning}
-            renderItem={(item) => (
-              <List.Item>
-                venue {item._slot} - reserveActive: {item._order ? "yes" : "no"}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexDirection: "column",
+        }}
+      >
+        <div style={{ width: "100%", display: "flex", alignItems: "center", marginBottom: "20px"}}>
+          <div  style={{width:"10%"}}>09:00 - 12:00 :</div>
+          <div style={{width:"90%",overflowY:"auto", marginLeft:"20px",display:"flex"}}>
+            {morning.map((mr) => (
+              <Card
+                key={mr._id}
+                title={mr._slot}
+                style={{
+                  width: 300,
+                  cursor: "pointer",
+                  marginRight:"20px"
+                }}
+              >
+                <p>venue: {mr._slot}</p>
+                <p>date: {mr._date}</p>
+                <p>reserveActive: {mr._order ? "yes" : "no"}</p>
                 {props.login && (
                   <Button
-                    disabled={item._order ? true : false}
-                    style={{ marginLeft: "10px" }}
+                    disabled={mr._order ? true : false}
+                    style={{}}
                     onClick={() => {
-                      reserveHandle1(item._id);
+                      reserveHandle1(mr._id);
                     }}
                   >
                     reserve
                   </Button>
                 )}
-              </List.Item>
-            )}
-          />
+              </Card>
+            ))}
+          </div>
         </div>
-        <div style={{ width: "45%" }}>
-          <List
-            header={<div>afternoon</div>}
-            // footer={<div>Footer</div>}
-            bordered
-            dataSource={afternoon}
-            renderItem={(item) => (
-              <List.Item>
-                venue {item._slot} - reserveActive: {item._order ? "yes" : "no"}
+        <div style={{ width: "100%", display: "flex", alignItems: "center"  }}>
+          <div style={{width:"10%"}}>13:00 - 16:00 : </div>
+          <div style={{width:"90%",overflowY:"auto", marginLeft:"20px",display:"flex"}}>
+            {afternoon.map((mr) => (
+              <Card
+                key={mr._id}
+                title={mr._slot}
+                style={{
+                  width: 300,
+                  cursor: "pointer",
+                  marginRight:"20px"
+                }}
+              >
+                <p>venue: {mr._slot}</p>
+                <p>date: {mr._date}</p>
+                <p>reserveActive: {mr._order ? "yes" : "no"}</p>
                 {props.login && (
                   <Button
-                    disabled={item._order ? true : false}
-                    style={{ marginLeft: "10px" }}
+                    disabled={mr._order ? true : false}
+                    style={{}}
                     onClick={() => {
-                      reserveHandle2(item._id);
+                      reserveHandle1(mr._id);
                     }}
                   >
                     reserve
                   </Button>
                 )}
-              </List.Item>
-            )}
-          />
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>
