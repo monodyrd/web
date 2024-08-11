@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SlotsDataService from "../services/slots"
 import OrdersDataService from '../services/orders';
 
-function Orders() {
+function Orders(props) {
   const [orders, setOrders] = useState([]);
   const init = ()=>{
     SlotsDataService.getSlots().then(res=>{
@@ -44,22 +44,22 @@ function Orders() {
       <div>
         {orders.map(order => (
           <Card
-          key={mr._id}
-          title={mr._slot}
+          key={order._id}
+          title={order._slot}
           style={{
             width: 300,
             cursor: "pointer",
             marginRight:"20px"
           }}
         >
-          <p>venue: {mr._slot}</p>
-          <p>date: {mr._date}</p>
-          <p>reserveActive: {mr._order ? "yes" : "no"}</p>
+          <p>venue: {order._slot}</p>
+          <p>date: {order._date}</p>
+          <p>reserveActive: {order._order ? "yes" : "no"}</p>
           {props.login && (
             <Button
               style={{}}
               onClick={() => {
-                deleteOrderHandle(mr._id);
+                deleteOrderHandle(order._id);
               }}
             >
               delete
