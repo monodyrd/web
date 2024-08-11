@@ -14,5 +14,4 @@ class OrdersDataService {
   }
 }
 
-const ordersDataService = new OrdersDataService();
-export default ordersDataService;
+export default OrdersDataService;

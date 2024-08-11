@@ -14,5 +14,4 @@ class SlotsDataService {
   }
 }
 
-const slotsDataService = new SlotsDataService();
-export default slotsDataService;
+export default SlotsDataService;

@@ -1,7 +1,37 @@
 import React, { useEffect, useState } from 'react';
+import SlotsDataService from "../services/slots"
+import OrdersDataService from '../services/orders';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
+  const init = ()=>{
+    SlotsDataService.getSlots().then(res=>{
+      OrdersDataService.getOrders(localStorage.getItem('user')).then(res=>{
+        /**
+         *  这个地方一个是getorders的userid我忘了是不是从本地取了
+         *  第二个就是getsolts不传时间的时候应该是获取全部吧？
+         *  还有就是看一下我写的和你返回的res的参数对上对不上，对上的话基本没啥问题了
+         * 
+         */
+        const oids = res.data.orderid;
+        let c = []
+        oids.forEach(el => {
+          res.data.forEach(re=>{
+            if(el==re._order){
+              c.push(re)
+            }
+          })
+        });
+        setOrders([...c])
+      })
+
+    })
+  }
+  const deleteOrderHandle = (id)=>{
+    OrdersDataService.deleteOrder(id).then(res=>{
+      init()
+    })
+  }
 
   useEffect(() => {
    
@@ -10,13 +40,33 @@ function Orders() {
   return (
     <div>
       <h2>订单列表</h2>
-      <ul>
+      <div>
         {orders.map(order => (
-          <li key={order.id}>
-            订单号: {order.id}, 场地: {order.court}, 时间: {order.time}
-          </li>
+          <Card
+          key={mr._id}
+          title={mr._slot}
+          style={{
+            width: 300,
+            cursor: "pointer",
+            marginRight:"20px"
+          }}
+        >
+          <p>venue: {mr._slot}</p>
+          <p>date: {mr._date}</p>
+          <p>reserveActive: {mr._order ? "yes" : "no"}</p>
+          {props.login && (
+            <Button
+              style={{}}
+              onClick={() => {
+                deleteOrderHandle(mr._id);
+              }}
+            >
+              delete
+            </Button>
+          )}
+        </Card>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
