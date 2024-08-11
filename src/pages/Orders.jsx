@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import SlotsDataService from "../services/slots"
-import OrdersDataService from '../services/orders';
+import { Card, Button } from "antd";
+import SlotsDataService from "../service/slots"
+import OrdersDataService from '../service/orders';
 
 function Orders(props) {
   const [orders, setOrders] = useState([]);
   const init = ()=>{
     SlotsDataService.getSlots().then(res=>{
-      OrdersDataService.getOrders(localStorage.getItem('user')).then(res=>{
+      OrdersDataService.getOrders(props.login.googleId).then(res=>{
         /**
          *  这个地方一个是getorders的userid我忘了是不是从本地取了
          *  第二个就是getsolts不传时间的时候应该是获取全部吧？
@@ -17,7 +18,7 @@ function Orders(props) {
         let c = []
         oids.forEach(el => {
           res.data.forEach(re=>{
-            if(el==re._order){
+            if(el===re._order){
               c.push(re)
             }
           })
@@ -34,9 +35,10 @@ function Orders(props) {
   }
 
   useEffect(() => {
-    init()
-   
-  }, []);
+    if (props.login.googleId) {
+      init()
+    }
+  }, [props.login]);
 
   return (
     <div>
