@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router";
 import { Card, Button } from "antd";
+import SlotsDataService from '../service/slots';
+import OrdersDataService from '../service/orders';
 
 function getDates(daysToAdd) {
-  const result = [];
+  const result = [],result2 = []
   const currentDate = new Date();
   for (let i = 0; i <= daysToAdd; i++) {
     const newDate = new Date(currentDate);
@@ -11,79 +12,68 @@ function getDates(daysToAdd) {
     const month = newDate.getMonth() + 1; // 月份从0开始，所以加1
     const day = newDate.getDate();
     result.push(`${month}/${day}`);
+    let str = newDate.toISOString()
+    result2.push(`${str.substring(0,11)}00:00:00.000%2B00:00`)
   }
-  return result;
+  return [result,result2]
 }
 
-function BadmintonBooking(props) {
+function BadmintonBooking(user) {
   // 计算七天后的日期
   const dates = getDates(7);
-  console.log(dates);
   const [morning, setMorning] = useState([]);
   const [afternoon, setAfternoon] = useState([]);
-  const [active, setActive] = useState(dates[0]);
-  const lc = useLocation();
-  let id = lc.state && lc.state.id ? lc.state.id : "";
+  const [active, setActive] = useState({
+    index:0,
+    ac:dates[0][0]
+  });
 
   const init = (date) => {
-    fetch("/data/booking.json?" + id)
-      .then((res) => res.json())
-      .then((res) => {
+
+      SlotsDataService.getSlots(date).then(res=>{
+        console.log(res,'res');
         let a = [],
-          b = [];
-        res.forEach((re) => {
-          if (re._time == "09:00-12:00") {
-            a.push(re);
-          } else {
-            b.push(re);
-          }
-        });
-        setMorning([...a]);
-        setAfternoon([...b]);
+        b = [];
+      res.data.forEach((re) => {
+        if (re._time === "09:00-12:00") {
+          a.push(re);
+        } else {
+          b.push(re);
+        }
       });
+      setMorning([...a]);
+      setAfternoon([...b]);
+        
+      })
   };
 
-  const reserveHandle1 = (id) => {
-    let morningc = morning.map((it) => {
-      if (it._id == id) {
-        return {
-          ...it,
-          _order: !it._,
-        };
-      } else {
-        return it;
-      }
+  const reserveHandle = (slotId) => {
+    // user 没有传进去
+    OrdersDataService.addOrders(user).then(order=>{
+      SlotsDataService.updateSlot(slotId, order.data.orderId).then(sl=>{
+        init(dates[1][active.index])
+      })
     });
-    setMorning([...morningc]);
   };
-  const reserveHandle2 = (id) => {
-    let afternoonc = afternoon.map((it) => {
-      if (it._id == id) {
-        return {
-          ...it,
-          _order: !it._,
-        };
-      } else {
-        return it;
-      }
-    });
-    setAfternoon([...afternoonc]);
-  };
+
   useEffect(() => {
-    init(dates[0]);
+    init(dates[1][0]);
   }, []);
   return (
     <div style={{ width: "100vw", boxSizing: "border-box", padding: "20px" }}>
       <h2>羽毛球场地预订</h2>
       <div className="dates">
-        {dates.map((item) => {
+        {dates[0].map((item,i) => {
           return (
             <div
               key={item}
-              className={active == item ? "date dateActive" : "date"}
+              className={active.ac === item ? "date dateActive" : "date"}
               onClick={() => {
-                setActive(item);
-                init(item);
+                setActive({
+                  index:i,
+                  ac:item
+                });
+                init(dates[1][i]);
               }}
             >
               {item}
@@ -101,25 +91,25 @@ function BadmintonBooking(props) {
         <div style={{ width: "100%", display: "flex", alignItems: "center", marginBottom: "20px"}}>
           <div  style={{width:"10%"}}>09:00 - 12:00 :</div>
           <div style={{width:"90%",overflowY:"auto", marginLeft:"20px",display:"flex"}}>
-            {morning.map((mr) => (
+            {morning.map((slots) => (
               <Card
-                key={mr._id}
-                title={mr._slot}
+                key={slots._id}
+                title={slots._slot}
                 style={{
                   width: 300,
                   cursor: "pointer",
                   marginRight:"20px"
                 }}
               >
-                <p>venue: {mr._slot}</p>
-                <p>date: {mr._date}</p>
-                <p>reserveActive: {mr._order ? "yes" : "no"}</p>
-                {props.login && (
+                <p>venue: {slots._slot}</p>
+                <p>reserveActive: {slots._order ? "yes" : "no"}</p>
+                {user && (
                   <Button
-                    disabled={mr._order ? true : false}
+                    disabled={slots._order ? true : false}
                     style={{}}
                     onClick={() => {
-                      reserveHandle1(mr._id);
+                      // userId
+                      reserveHandle(slots._id);
                     }}
                   >
                     reserve
@@ -132,25 +122,24 @@ function BadmintonBooking(props) {
         <div style={{ width: "100%", display: "flex", alignItems: "center"  }}>
           <div style={{width:"10%"}}>13:00 - 16:00 : </div>
           <div style={{width:"90%",overflowY:"auto", marginLeft:"20px",display:"flex"}}>
-            {afternoon.map((mr) => (
+            {afternoon.map((slots) => (
               <Card
-                key={mr._id}
-                title={mr._slot}
+                key={slots._id}
+                title={slots._slot}
                 style={{
                   width: 300,
                   cursor: "pointer",
                   marginRight:"20px"
                 }}
               >
-                <p>venue: {mr._slot}</p>
-                <p>date: {mr._date}</p>
-                <p>reserveActive: {mr._order ? "yes" : "no"}</p>
-                {props.login && (
+                <p>venue: {slots._slot}</p>
+                <p>reserveActive: {slots._order ? "yes" : "no"}</p>
+                {user && (
                   <Button
-                    disabled={mr._order ? true : false}
+                    disabled={slots._order ? true : false}
                     style={{}}
                     onClick={() => {
-                      reserveHandle1(mr._id);
+                      reserveHandle(slots._id);
                     }}
                   >
                     reserve
